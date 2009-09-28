@@ -1,0 +1,75 @@
+<?php
+
+/**
+ * Implementation of hook_help().
+ */
+function newtrack_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#newtrack':
+      return t('Add a "New Track" field to the Station Playlists.');
+  }
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function newtrack_form_station_playlist_node_form_alter(&$form, $form_state) {
+  $blanks = 10;
+  $weight = 0;
+  $node = $form['#node'];
+  if (!empty($node->nid))
+    $node = node_load($node->nid);
+  foreach ($node->tracks as $key => $track) {
+    if (is_numeric($key)) {
+      $form['tracks'][$weight]['newtrack'] = array(
+        '#type' => 'checkbox',
+        '#default_value' => isset($track['newtrack']) ? $track['newtrack'] : 0, 
+      );
+      $weight++;
+    }
+  }
+  for ($i = 0; $i < $blanks; $i++) {
+    $form['tracks'][$weight]['newtrack'] = array(
+      '#type' => 'checkbox',
+      '#default_value' => 0,
+    );
+    $weight++;
+  }
+}
+
+/**
+ * Implementation of hook_views_data().
+ */
+function newtrack_views_data() {
+  $data['station_playlist_track']['newtrack'] = array(
+    'title' => t("New"),
+    'help' => t("Denotes a new track"),
+    'field' => array(
+      'handler' => 'newtrack_handler_field_boolean',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_boolean_operator',
+      'label' => t('New track'),
+      'type' => 'yes-no',
+    ),
+  );
+  return $data;
+}
+
+/**
+ * Implementation of hook_views_handlers().
+ */
+
+function newtrack_views_handlers() {
+  return array(
+    'info' => array(
+      'path' => drupal_get_path('module', 'newtrack'),
+    ),
+    'handlers' => array(
+      'newtrack_handler_field_boolean' => array(
+        'parent' => 'views_handler_field',
+      ),
+    ),
+  );
+}

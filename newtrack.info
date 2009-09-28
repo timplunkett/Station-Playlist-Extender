@@ -1,0 +1,6 @@
+; $Id$
+name = New Track
+description = A checkbox for Station Playlist to denote a new track
+core = 6.x
+dependencies[] = station
+package = "Station"

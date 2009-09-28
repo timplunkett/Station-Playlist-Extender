@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * Implemntation of hook_schema_alter().
+ */
+function newtrack_schema_alter(&$schema) {
+  $schema['station_playlist_track']['fields']['newtrack'] = array(
+    'description' => t('Is this track on the new music shelf?'),
+    'type' => 'int',
+    'size' => 'tiny',
+    'not nll' => TRUE,
+    'default' => 0,
+  );
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function newtrack_install() {
+  $ret = array();
+  $schema['station_playlist_track'] = array();
+  newtrack_schema_alter($schema);
+  foreach ($schema['station_playlist_track']['fields'] as $name => $spec) {
+    db_add_field($ret, 'station_playlist_track', $name, $spec);
+  }
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function newtrack_uninstall() {
+  $ret = array();
+  $schema['station_playlist_track'] = array();
+  newtrack_schema_alter($schema);
+  foreach ($schema['station_playlist_track']['fields'] as $name => $spec) {
+    db_drop_field($ret, 'station_playlist_track', $name);
+  }
+}
